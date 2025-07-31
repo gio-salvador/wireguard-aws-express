@@ -1,23 +1,3 @@
-data "aws_ami" "amazon_linux" {
-  most_recent = true
-  owners      = ["137112412989"] # Amazon official
-
-  filter {
-    name   = "name"
-    values = ["al2023-ami-*-x86_64"]
-  }
-
-  filter {
-    name   = "architecture"
-    values = ["x86_64"]
-  }
-
-  filter {
-    name   = "virtualization-type"
-    values = ["hvm"]
-  }
-}
-
 data "http" "my_ip" {
   url = "https://ipv4.icanhazip.com"
 }
@@ -117,7 +97,7 @@ resource "aws_security_group" "instance" {
 }
 
 resource "aws_instance" "main" {
-  ami                    = var.instance_ami != "" ? var.instance_ami : data.aws_ami.amazon_linux.id
+  ami                    = var.instance_ami
   instance_type          = "t3.micro"
   subnet_id              = aws_subnet.main.id
   vpc_security_group_ids = [aws_security_group.instance.id]

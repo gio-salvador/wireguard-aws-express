@@ -76,10 +76,18 @@ terraform init
 
 Defaults are provided, but you may customize:
 
-- AWS region
-- EC2 instance type
-- SSH key pair name
-- AMI ID (Amazon Linux 2023 default)
+- EC2 instance name (default: wireguard-br-instance)
+- EC2 SSH key pair name
+- EC2 AMI ID
+
+Run the following command to find the AMI ID for your region:
+
+```bash
+aws ec2 describe-images \
+  --owners amazon \
+  --filters "Name=name,Values=al2023-ami-*-x86_64" "Name=state,Values=available" \
+  --query "Images | sort_by(@, &CreationDate)[-1].ImageId"
+```
 
 ### 4. Deploy Infrastructure
 
