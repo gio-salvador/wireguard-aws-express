@@ -7,6 +7,7 @@ source "$(dirname "$0")/wireguard-vars.sh"
 EXT_IF=$(get_net_interface)
 
 # Install WireGuard
+sudo dnf upgrade -y
 sudo dnf install -y wireguard-tools iproute iptables nmap-ncat
 
 # Enable IP forwarding
