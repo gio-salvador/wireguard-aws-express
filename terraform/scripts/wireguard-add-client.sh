@@ -62,7 +62,7 @@ Endpoint = $SERVER_ENDPOINT:$WG_PORT
 AllowedIPs = 0.0.0.0/0
 PersistentKeepalive = 25
 
-EOC
+EOC > ${WG_PEER_CONFIG_PATH}/${PEER_NAME}.conf
 echo "==========================================================="
 
 # Output alternative AllowedIPs

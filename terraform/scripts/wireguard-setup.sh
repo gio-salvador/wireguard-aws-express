@@ -51,5 +51,5 @@ sudo iptables -A POSTROUTING -t nat -s $WG_NET -o $EXT_IF -j MASQUERADE
 
 echo
 echo "Setup complete. To add more peers, run:"
-echo "sudo $PWD/wireguard-add-peer.sh peerN 10.0.0.N"
+echo "sudo $PWD/wireguard-add-client.sh"
 echo
