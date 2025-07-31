@@ -47,11 +47,7 @@ echo "Peer $PEER_NAME ($PEER_IP) added and service restarted!"
 echo
 
 # Output client config
-echo
-echo "=================  WireGuard PEER CONFIG  ================="
-cat <<EOC
-
-[Interface]
+echo """[Interface]
 PrivateKey = $PEER_PRIVKEY
 Address = ${PEER_IP}/32
 DNS = $WG_DNS
@@ -61,9 +57,16 @@ PublicKey = $SERVER_PUBKEY
 Endpoint = $SERVER_ENDPOINT:$WG_PORT
 AllowedIPs = 0.0.0.0/0
 PersistentKeepalive = 25
+""" > ${WG_PEER_CONFIG_PATH}/${PEER_NAME}.conf
 
-EOC > ${WG_PEER_CONFIG_PATH}/${PEER_NAME}.conf
+sudo chown ec2-user:ec2-user ${WG_PEER_CONFIG_PATH}/${PEER_NAME}.conf
+sudo chmod 640 ${WG_PEER_CONFIG_PATH}/${PEER_NAME}.conf
+
+echo
+echo "=================  WireGuard PEER CONFIG  ================="
+cat ${WG_PEER_CONFIG_PATH}/${PEER_NAME}.conf
 echo "==========================================================="
+echo "This config file is available at: ${WG_PEER_CONFIG_PATH}/${PEER_NAME}.conf"
 
 # Output alternative AllowedIPs
 echo
