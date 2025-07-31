@@ -1,6 +1,6 @@
-# WireGuard-BR
+# WireGuard AWS Express
 
-**WireGuard-BR** is an automated Terraform solution for rapidly deploying a secure, scalable, and easily manageable WireGuard VPN server on AWS. Designed to simplify the complexity of VPN setup, WireGuard-BR is ideal for secure remote connectivity, protecting data privacy, and bypassing geographic restrictions.
+**WireGuard-AWS-Express** is an automated Terraform solution for rapidly deploying a secure, scalable, and easily manageable WireGuard VPN server on AWS. Designed to simplify the complexity of VPN setup, WireGuard-BR is ideal for secure remote connectivity, protecting data privacy, and bypassing geographic restrictions.
 
 ---
 
@@ -62,7 +62,7 @@ In today's remote-first, cloud-centric environment, secure and reliable connecti
 ### 1. Clone the Repository
 
 ```bash
-git clone https://github.com/yourusername/wireguard-br.git
+git clone https://github.com/gio-salvador/wireguard-aws-express.git
 cd wireguard-br/terraform
 ```
 
