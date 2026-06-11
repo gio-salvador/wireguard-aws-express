@@ -67,21 +67,21 @@ resource "aws_route_table_association" "main" {
 resource "aws_security_group" "instance" {
   name        = "${var.instance_name}-sg"
   description = "Allow SSH and WireGuard inbound"
-  vpc_id = aws_vpc.main.id
+  vpc_id      = aws_vpc.main.id
   ingress {
-    description      = "SSH"
-    from_port        = 22
-    to_port          = 22
-    protocol         = "tcp"
-    cidr_blocks      = [local.ssh_cidr]
+    description = "SSH"
+    from_port   = 22
+    to_port     = 22
+    protocol    = "tcp"
+    cidr_blocks = [local.ssh_cidr]
   }
 
   ingress {
-    description      = "WireGuard UDP"
-    from_port        = 51820
-    to_port          = 51820
-    protocol         = "udp"
-    cidr_blocks      = ["0.0.0.0/0"] # You can restrict this further as needed
+    description = "WireGuard UDP"
+    from_port   = 51820
+    to_port     = 51820
+    protocol    = "udp"
+    cidr_blocks = ["0.0.0.0/0"] # You can restrict this further as needed
   }
 
   egress {
