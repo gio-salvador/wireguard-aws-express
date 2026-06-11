@@ -1,0 +1,27 @@
+version: 2
+updates:
+  # Terraform providers + modules used by the root configuration.
+  - package-ecosystem: terraform
+    directory: "/"
+    schedule:
+      interval: weekly
+    open-pull-requests-limit: 5
+    assignees:
+      - "gio-salvador"
+    labels: ["dependencies", "terraform"]
+    commit-message:
+      prefix: chore
+      include: scope
+
+  # GitHub Actions used by the CI and Scorecard workflows.
+  - package-ecosystem: github-actions
+    directory: "/"
+    schedule:
+      interval: weekly
+    open-pull-requests-limit: 5
+    assignees:
+      - "gio-salvador"
+    labels: ["dependencies", "ci"]
+    commit-message:
+      prefix: ci
+      include: scope

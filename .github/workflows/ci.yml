@@ -1,0 +1,107 @@
+name: CI
+
+# Public-tier CI for an offline Terraform + shell repository.
+# No AWS credentials, no backend, no apply — formatting, offline validation,
+# secret scanning, and an Actions SHA-pinning self-check only.
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: ci-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  terraform:
+    name: Terraform
+    runs-on: ubuntu-24.04
+    steps:
+      - name: Checkout
+        uses: actions/checkout@08c6903cd8c0fde910a37f88322edcfb5dd907a8 # v5.0.0
+        with:
+          persist-credentials: false
+
+      - name: Setup Terraform
+        uses: hashicorp/setup-terraform@5e8dbf3c6d9deaf4193ca7a8fb23f2ac83bb6c85 # v4.0.0
+        with:
+          terraform_wrapper: false
+
+      - name: Terraform fmt
+        run: terraform fmt -check -recursive
+
+      - name: Terraform init (offline, no backend)
+        run: terraform init -backend=false -input=false
+
+      - name: Terraform validate
+        run: terraform validate
+
+      - name: Setup TFLint
+        uses: terraform-linters/setup-tflint@b480b8fcdaa6f2c577f8e4fa799e89e756bb7c93 # v6.2.2
+        with:
+          tflint_version: latest
+
+      - name: TFLint
+        run: |
+          tflint --init
+          tflint --recursive
+
+  gitleaks:
+    name: Gitleaks
+    runs-on: ubuntu-24.04
+    steps:
+      - name: Checkout
+        uses: actions/checkout@08c6903cd8c0fde910a37f88322edcfb5dd907a8 # v5.0.0
+        with:
+          fetch-depth: 0
+          persist-credentials: false
+
+      - name: Gitleaks scan
+        uses: gitleaks/gitleaks-action@ff98106e4c7b2bc287b24eaf42907196329070c7 # v2.3.9
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+  gha-pinning:
+    name: GHA SHA pinning
+    runs-on: ubuntu-24.04
+    steps:
+      - name: Checkout
+        uses: actions/checkout@08c6903cd8c0fde910a37f88322edcfb5dd907a8 # v5.0.0
+        with:
+          persist-credentials: false
+
+      - name: Every `uses:` must be pinned to a 40-char commit SHA
+        shell: bash
+        run: |
+          set -euo pipefail
+          fail=0
+          while IFS= read -r file; do
+            # Match `uses:` lines, ignore comments and local actions (./).
+            while IFS= read -r line; do
+              ref="${line#*uses:}"
+              ref="$(echo "$ref" | sed -e 's/^[[:space:]]*//' -e 's/[[:space:]]*$//')"
+              # Local actions and reusable workflows in-repo are allowed unpinned.
+              case "$ref" in
+                ./*|.\\*) continue ;;
+              esac
+              # Strip any trailing inline comment for the value test.
+              value="${ref%%#*}"
+              value="$(echo "$value" | sed -e 's/[[:space:]]*$//')"
+              # Expect owner/repo@<40-hex-sha>
+              if [[ ! "$value" =~ @[0-9a-f]{40}$ ]]; then
+                echo "UNPINNED: $file -> $ref"
+                fail=1
+              fi
+            done < <(grep -nE '^[[:space:]]*-?[[:space:]]*uses:' "$file" | sed 's/^[0-9]*://' || true)
+          done < <(find .github/workflows -type f \( -name '*.yml' -o -name '*.yaml' \))
+          if [[ "$fail" -ne 0 ]]; then
+            echo "::error::Found GitHub Actions references not pinned to a full commit SHA."
+            exit 1
+          fi
+          echo 'All uses: references are SHA-pinned.'
